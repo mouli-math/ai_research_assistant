@@ -1,0 +1,29 @@
+# Never bake real secrets into the image
+.env
+
+# Python bytecode — rebuilt inside the container
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Test artefacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local reports (mounted at runtime)
+reports/
+
+# Git history (not needed at build time)
+.git/
+.gitignore
+
+# Editor / OS noise
+.DS_Store
+*.swp

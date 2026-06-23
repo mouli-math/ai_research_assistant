@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+  # ── FastAPI backend ──────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: research_api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app          # ← add this
+    volumes:
+      # Persist generated reports outside the container
+      - ./reports:/app/reports
+    depends_on:
+      - mcp_server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  # ── MCP server ───────────────────────────────────────────────────────────────
+  mcp_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: research_mcp
+    command: python -m mcp_server.server
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - MCP_TRANSPORT=sse
+      - FASTMCP_HOST=0.0.0.0
+      - FASTMCP_PORT=8001
+    restart: unless-stopped
+  # ── Streamlit frontend ────────────────────────────────────────────────────────
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: research_ui
+    command: python -m streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - API_URL=http://api:8080
+    depends_on:
+      - api
+    restart: unless-stopped
