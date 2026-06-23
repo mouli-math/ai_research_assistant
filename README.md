@@ -237,3 +237,5 @@ MIT
 # ai_research_assistant
 Agent helps to create research report for given topic
 
+#   D e p l o y m e n t   t r i g g e r  
+ 
